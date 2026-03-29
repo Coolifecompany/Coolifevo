@@ -20,8 +20,6 @@
   --ops:#34d399;--opsd:rgba(52,211,153,.15);
   --dsk:#fb7185;--dskd:rgba(251,113,133,.15);
   --snt:#f59e0b;--sntd:rgba(245,158,11,.15);
-  --gmi:#38bdf8;--gmid:rgba(56,189,248,.15);
-  --ds3:#f472b6;--ds3d:rgba(244,114,182,.15);
   --sys:#fbbf24;--sysd:rgba(251,191,36,.12);
   --hh:52px;--bnh:62px;
 }
@@ -58,8 +56,6 @@ header{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:
 .mc[data-m=opus].sel{border-color:var(--ops);background:var(--opsd)}
 .mc[data-m=deepseek].sel{border-color:var(--dsk);background:var(--dskd)}
 .mc[data-m=sonnet].sel{border-color:var(--snt);background:var(--sntd)}
-.mc[data-m=gptmini].sel{border-color:var(--gmi);background:var(--gmid)}
-.mc[data-m=ds32].sel{border-color:var(--ds3);background:var(--ds3d)}
 .mc-p{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .mc-t{flex:1;min-width:0}
 .mc-n{font-size:13px;font-weight:600}
@@ -103,8 +99,6 @@ header{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:
 .sgc.sel[data-m=opus]{border-color:var(--ops);background:var(--opsd)}
 .sgc.sel[data-m=deepseek]{border-color:var(--dsk);background:var(--dskd)}
 .sgc.sel[data-m=sonnet]{border-color:var(--snt);background:var(--sntd)}
-.sgc.sel[data-m=gptmini]{border-color:var(--gmi);background:var(--gmid)}
-.sgc.sel[data-m=ds32]{border-color:var(--ds3);background:var(--ds3d)}
 .sp{width:9px;height:9px;border-radius:50%;flex-shrink:0}
 .si2{flex:1}.sn{font-size:13px;font-weight:600}.sr{font-size:11px;color:var(--txd);margin-top:1px}
 .sc{width:18px;height:18px;border-radius:4px;border:2px solid var(--bd2);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;transition:all .25s}
@@ -160,8 +154,6 @@ header{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:
 .fm-opus{color:var(--ops);border-color:rgba(52,211,153,.2);background:var(--opsd)}
 .fm-deepseek{color:var(--dsk);border-color:rgba(251,113,133,.2);background:var(--dskd)}
 .fm-sonnet{color:var(--snt);border-color:rgba(245,158,11,.2);background:var(--sntd)}
-.fm-gptmini{color:var(--gmi);border-color:rgba(56,189,248,.2);background:var(--gmid)}
-.fm-ds32{color:var(--ds3);border-color:rgba(244,114,182,.2);background:var(--ds3d)}
 .td{display:inline-flex;gap:4px;align-items:center;padding:2px 0}
 .td span{width:5px;height:5px;border-radius:50%;background:currentColor;opacity:.4;animation:dp 1.4s infinite}
 .td span:nth-child(2){animation-delay:.2s}
@@ -356,22 +348,6 @@ header{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:
 .tos.er{border-color:var(--dg)}
 @keyframes tin{from{transform:translateY(10px);opacity:0}to{transform:translateY(0);opacity:1}}
 
-/* FAB voice button - mobile only */
-.fab-voice{display:none;position:fixed;right:16px;bottom:155px;z-index:145;
-  width:54px;height:54px;border-radius:50%;border:none;cursor:pointer;
-  background:linear-gradient(135deg,var(--tl) 0%,var(--acb) 100%);
-  color:white;box-shadow:0 4px 20px rgba(0,212,170,.5);
-  align-items:center;justify-content:center;
-  transition:transform .2s,box-shadow .2s;animation:fab-pulse 3s infinite}
-.fab-voice:hover,.fab-voice:active{transform:scale(1.1);box-shadow:0 6px 28px rgba(0,212,170,.7)}
-@keyframes fab-pulse{0%,100%{box-shadow:0 4px 20px rgba(0,212,170,.5)}50%{box-shadow:0 4px 30px rgba(0,212,170,.8),0 0 0 8px rgba(0,212,170,.12)}}
-.fab-voice.active-vc{background:linear-gradient(135deg,var(--dg),#e05070);animation:none;box-shadow:0 4px 20px rgba(255,107,138,.5)}
-.fab-label{position:absolute;right:66px;top:50%;transform:translateY(-50%);
-  background:rgba(0,0,0,.75);color:white;padding:5px 10px;border-radius:8px;
-  font-family:'IBM Plex Mono',monospace;font-size:11px;white-space:nowrap;
-  pointer-events:none;opacity:0;transition:opacity .2s}
-.fab-voice:hover .fab-label{opacity:1}
-
 /* RESPONSIVE */
 @media(max-width:768px){
   .sidebar{display:none}
@@ -383,16 +359,8 @@ header{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:
   .pbar,.gbar{padding:8px 12px;gap:8px}
   .ia{padding:8px 12px 10px}
   .tc{bottom:70px}
-  /* hide desktop voice btn in partner bar on mobile - FAB takes over */
-  .pab.von{display:none}
-  /* show FAB */
-  .fab-voice{display:flex}
-  /* make back/clear buttons smaller */
-  .pab{padding:5px 8px;font-size:10px}
-  /* header: hide api config text, keep icon */
-  #vplbtn{display:none}
 }
-@media(min-width:769px){.bnav{display:none!important}.fab-voice{display:none!important}}
+@media(min-width:769px){.bnav{display:none!important}}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
@@ -603,16 +571,6 @@ header{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:
   </div>
 </div>
 
-<!-- FAB voice button (mobile) -->
-<button class="fab-voice" id="fabVoice" onclick="fabVoiceClick()" title="纯语音对话">
-  <div class="fab-label">纯语音</div>
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
-    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
-    <line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>
-  </svg>
-</button>
-
 <!-- MOBILE BOTTOM NAV -->
 <nav class="bnav" id="bnav">
   <button class="bni act" id="bn0" onclick="bnClick('home')">
@@ -666,20 +624,16 @@ var MI = {
   gemini:   {name:'Gemini',     color:'#a78bfa', role:'长文档·多模态',     emoji:'Ge'},
   opus:     {name:'Opus',       color:'#34d399', role:'深度推理·工程规划', emoji:'Op'},
   deepseek: {name:'DeepSeek',   color:'#fb7185', role:'中文专家·中文报告', emoji:'Ds'},
-  sonnet:   {name:'Sonnet 4.6', color:'#f59e0b', role:'快速响应·日常对话', emoji:'So'},
-  gptmini:  {name:'GPT-5-Mini', color:'#38bdf8', role:'轻量快速·日常问答', emoji:'Gm'},
-  ds32:     {name:'DeepSeek V3.2', color:'#f472b6', role:'中文推理·深度分析', emoji:'D3'}
+  sonnet:   {name:'Sonnet 4.6', color:'#f59e0b', role:'快速响应·日常对话', emoji:'So'}
 };
-var MODELS = ['gpt','gemini','opus','deepseek','sonnet','gptmini','ds32'];
+var MODELS = ['gpt','gemini','opus','deepseek','sonnet'];
 
 var cfg = {
-  gpt:      {key:'', url:'https://xyuapi.top/v1',  model:'gpt-5.4-pro-thinking'},
-  gemini:   {key:'', url:'https://xyuapi.top/v1',  model:'gemini-3.1-pro-preview'},
-  opus:     {key:'', url:'https://xyuapi.top/v1',  model:'claude-opus-4-6-thinking'},
-  deepseek: {key:'', url:'https://xyuapi.top/v1',  model:'deepseek-v3.2-thinking'},
-  sonnet:   {key:'', url:'https://xyuapi.top/v1',  model:'claude-sonnet-4-6-thinking'},
-  gptmini:  {key:'', url:'https://poloai.top/v1',  model:'gpt-5-mini'},
-  ds32:     {key:'', url:'https://poloai.top/v1',  model:'deepseek-v3.2'}
+  gpt:      {key:'', url:'https://xyuapi.top/v1', model:'gpt-5.4-pro-thinking'},
+  gemini:   {key:'', url:'https://xyuapi.top/v1', model:'gemini-3.1-pro-preview'},
+  opus:     {key:'', url:'https://xyuapi.top/v1', model:'claude-opus-4-6-thinking'},
+  deepseek: {key:'', url:'https://xyuapi.top/v1', model:'deepseek-v3.2-thinking'},
+  sonnet:   {key:'', url:'https://xyuapi.top/v1', model:'claude-sonnet-4-6-thinking'}
 };
 
 // ════ APP STATE ════
@@ -1440,7 +1394,6 @@ function showSc(name){
   document.getElementById('sideMdSec').style.display   = name==='disc' ? 'none'  : 'block';
   if(name==='setup'){document.getElementById('hbadge').textContent='就绪';document.getElementById('hbadge').className='hbadge';}
   bnSetActive(name);
-  updFab(name);
 }
 
 function backSetup(){
@@ -1456,27 +1409,6 @@ function copyRpt(){
 }
 
 // ════ BOTTOM NAV ════
-function fabVoiceClick(){
-  var cs=document.getElementById('chatSc');
-  var inChat=cs&&cs.style.display!=='none';
-  if(document.getElementById('vco').classList.contains('open')){
-    exitVC(); return;
-  }
-  if(inChat){ openVC(); }
-  else { toast('请先进入 1对1 对话模式','er'); }
-}
-function updFab(screen){
-  var fab=document.getElementById('fabVoice');
-  if(!fab)return;
-  // Only show FAB when in chat screen
-  if(screen==='chat'){
-    fab.style.display='flex';
-    fab.classList.remove('active-vc');
-  } else {
-    fab.style.display='none';
-  }
-}
-
 function bnClick(tab){
   if(tab==='home'){backSetup();}
   else if(tab==='models'){showMobModels();}
@@ -1494,8 +1426,6 @@ function bnVoiceOn(on){
   var lab=document.getElementById('bn2lab');
   if(btn)btn.classList.toggle('tla',on);
   if(lab)lab.textContent=on?'语音·ON':'语音';
-  var fab=document.getElementById('fabVoice');
-  if(fab)fab.classList.toggle('active-vc',on);
 }
 function bnSetActive(screen){
   var map={setup:'bn0',chat:'bn0',disc:'bn0',summary:'bn0'};
