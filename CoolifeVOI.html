@@ -86,7 +86,7 @@ header{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:
 .ssub{font-size:13px;color:var(--txd);margin-bottom:24px;line-height:1.7}
 .slbl{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--txm);margin-bottom:8px}
 /* app mode cards */
-.amr{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:24px}
+.amr{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px}
 .amc{padding:16px;border-radius:14px;border:1px solid var(--bd);background:var(--sf2);cursor:pointer;transition:all .25s;text-align:center;user-select:none}
 .amc:hover{border-color:var(--bd2);background:var(--sf3)}
 .amc.sel{border-color:var(--ac);background:rgba(108,92,231,.1)}
@@ -503,6 +503,10 @@ header{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:
             <span class="amic">🇹🇭</span><span class="amn">中泰互译</span>
             <span class="amd">说中文翻泰语<br>说泰语翻中文</span>
           </div>
+          <div class="amc" id="amTransET" onclick="selAppMode('transET')">
+            <span class="amic">🇬🇧</span><span class="amn">英泰互译</span>
+            <span class="amd">说英文翻泰语<br>说泰语翻英文</span>
+          </div>
         </div>
         <div id="blk1v1">
           <div class="slbl">选择你的 AI 伙伴</div>
@@ -537,7 +541,7 @@ header{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:
           </div>
         </div>
         <button class="stbtn" onclick="handleStart()">开始 →</button>
-        <div class="stnote">需配置 API Key · 1对1 至少 1 个模型 · 多AI至少 2 个 · 中泰互译选 1 个</div>
+        <div class="stnote">需配置 API Key · 1对1 至少 1 个模型 · 多AI至少 2 个 · 互译选 1 个</div>
       </div>
     </div>
 
@@ -645,22 +649,22 @@ header{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:
     <!-- TRANSLATION -->
     <div id="transSc">
       <div class="trbar">
-        <div class="trav">🇹🇭</div>
+        <div class="trav" id="trAv">🇹🇭</div>
         <div class="trinfo">
-          <div class="trn"><span>中泰互译</span><span class="trtag" id="trEngine">—</span></div>
+          <div class="trn"><span id="trTitle">中泰互译</span><span class="trtag" id="trEngine">—</span></div>
           <div class="trsub" id="trSrLabel">浏览器语音识别</div>
         </div>
         <div class="tr-dir">
-          <span>中</span><span class="tr-dir-arrow">⇄</span><span>ไทย</span>
+          <span id="trDirSrc">中</span><span class="tr-dir-arrow">⇄</span><span id="trDirDst">ไทย</span>
         </div>
         <button class="pab" onclick="clearTrans()">清空</button>
         <button class="pab back" onclick="backSetup()">← 返回</button>
       </div>
       <div class="trmsgs" id="trMsgs">
         <div class="tr-emp" id="trEmp">
-          <div class="emp-i">🇹🇭</div>
-          <div class="emp-t">中泰实时互译</div>
-          <div class="emp-s" style="font-family:'IBM Plex Mono',monospace">输入文字或按麦克风说话<br>中文 → 泰语 · 泰语 → 中文</div>
+          <div class="emp-i" id="trEmpIco">🇹🇭</div>
+          <div class="emp-t" id="trEmpTitle">中泰实时互译</div>
+          <div class="emp-s" id="trEmpDesc" style="font-family:'IBM Plex Mono',monospace">输入文字或按麦克风说话<br>中文 → 泰语 · 泰语 → 中文</div>
         </div>
       </div>
       <div class="ia">
@@ -830,6 +834,7 @@ var trRec = null;              // browser SpeechRecognition
 var trMediaRec = null;         // MediaRecorder for Whisper
 var trAudioChunks = [];
 var trCount = 0;
+var transMode = 'zh-th';       // 'zh-th' | 'en-th'
 var whisperCfg = {key:'', url:'https://poloai.top/v1', model:'whisper-1'};
 
 // ════ INIT ════
@@ -924,9 +929,10 @@ function selAppMode(m) {
   document.getElementById('am1v1').className   = 'amc' + (m==='1v1'?' sel':'');
   document.getElementById('amMulti').className = 'amc' + (m==='multi'?' sel tl':'');
   document.getElementById('amTrans').className = 'amc' + (m==='trans'?' sel dg':'');
+  document.getElementById('amTransET').className = 'amc' + (m==='transET'?' sel dg':'');
   document.getElementById('blk1v1').style.display   = m==='1v1' ? '' : 'none';
   document.getElementById('blkMulti').style.display = m==='multi' ? '' : 'none';
-  document.getElementById('blkTrans').style.display = m==='trans' ? '' : 'none';
+  document.getElementById('blkTrans').style.display = (m==='trans'||m==='transET') ? '' : 'none';
   buildSidebar(); buildSetupGrids();
 }
 
@@ -945,6 +951,7 @@ function selRunMode(m) {
 function handleStart() {
   if (appMode==='1v1') start1v1();
   else if (appMode==='trans') startTrans();
+  else if (appMode==='transET') startTransET();
   else startDisc();
 }
 
@@ -1848,6 +1855,7 @@ function mobSelModel(k){
 function startTrans() {
   if (!cfg[selTrans].key) { toast(MI[selTrans].name+' 未配置 API Key','er'); return; }
   if (srMode==='whisper' && !whisperCfg.key) { toast('Whisper 未配置 API Key，已切回浏览器识别','er'); srMode='browser'; }
+  transMode = 'zh-th';
   trCount=0;
   showSc('trans');
   document.getElementById('hbadge').textContent='中泰互译';
@@ -1856,12 +1864,46 @@ function startTrans() {
   document.getElementById('hbadge').style.borderColor='rgba(255,107,138,.3)';
   document.getElementById('trEngine').textContent=MI[selTrans].name;
   document.getElementById('trSrLabel').textContent=srMode==='whisper'?'Whisper API 语音识别':'浏览器语音识别';
+  document.getElementById('trAv').textContent='🇹🇭';
+  document.getElementById('trTitle').textContent='中泰互译';
+  document.getElementById('trDirSrc').textContent='中';
+  document.getElementById('trDirDst').textContent='ไทย';
+  document.getElementById('trInput').placeholder='输入中文或泰语…';
+  document.getElementById('trEmpIco').textContent='🇹🇭';
+  document.getElementById('trEmpTitle').textContent='中泰实时互译';
+  document.getElementById('trEmpDesc').innerHTML='输入文字或按麦克风说话<br>中文 → 泰语 · 泰语 → 中文';
+  trSt='idle';
+}
+
+function startTransET() {
+  if (!cfg[selTrans].key) { toast(MI[selTrans].name+' 未配置 API Key','er'); return; }
+  if (srMode==='whisper' && !whisperCfg.key) { toast('Whisper 未配置 API Key，已切回浏览器识别','er'); srMode='browser'; }
+  transMode = 'en-th';
+  trCount=0;
+  showSc('trans');
+  document.getElementById('hbadge').textContent='英泰互译';
+  document.getElementById('hbadge').className='hbadge';
+  document.getElementById('hbadge').style.color='var(--dg)';
+  document.getElementById('hbadge').style.borderColor='rgba(255,107,138,.3)';
+  document.getElementById('trEngine').textContent=MI[selTrans].name;
+  document.getElementById('trSrLabel').textContent=srMode==='whisper'?'Whisper API 语音识别':'浏览器语音识别';
+  document.getElementById('trAv').textContent='🇬🇧';
+  document.getElementById('trTitle').textContent='英泰互译';
+  document.getElementById('trDirSrc').textContent='EN';
+  document.getElementById('trDirDst').textContent='ไทย';
+  document.getElementById('trInput').placeholder='输入英文或泰语… / Type English or Thai…';
+  document.getElementById('trMsgs').innerHTML='<div class="tr-emp" id="trEmp"><div class="emp-i" id="trEmpIco">🇬🇧</div><div class="emp-t" id="trEmpTitle">英泰实时互译</div><div class="emp-s" id="trEmpDesc" style="font-family:IBM Plex Mono,monospace">Type text or tap mic to speak<br>English → Thai · Thai → English</div></div>';
+  document.getElementById('trCnt').textContent='0 条翻译';
   trSt='idle';
 }
 
 function clearTrans() {
   trCount=0;
-  document.getElementById('trMsgs').innerHTML='<div class="tr-emp" id="trEmp"><div class="emp-i">🇹🇭</div><div class="emp-t">中泰实时互译</div><div class="emp-s" style="font-family:IBM Plex Mono,monospace">输入文字或按麦克风说话<br>中文 → 泰语 · 泰语 → 中文</div></div>';
+  if (transMode==='en-th') {
+    document.getElementById('trMsgs').innerHTML='<div class="tr-emp" id="trEmp"><div class="emp-i" id="trEmpIco">🇬🇧</div><div class="emp-t" id="trEmpTitle">英泰实时互译</div><div class="emp-s" id="trEmpDesc" style="font-family:IBM Plex Mono,monospace">Type text or tap mic to speak<br>English → Thai · Thai → English</div></div>';
+  } else {
+    document.getElementById('trMsgs').innerHTML='<div class="tr-emp" id="trEmp"><div class="emp-i" id="trEmpIco">🇹🇭</div><div class="emp-t" id="trEmpTitle">中泰实时互译</div><div class="emp-s" id="trEmpDesc" style="font-family:IBM Plex Mono,monospace">输入文字或按麦克风说话<br>中文 → 泰语 · 泰语 → 中文</div></div>';
+  }
   document.getElementById('trCnt').textContent='0 条翻译';
   toast('已清空','ok');
 }
@@ -1928,8 +1970,8 @@ function trListenBrowser() {
   if (!SR) { toast('请使用 Chrome/Edge','er'); return; }
   if (trRec) { try{trRec.stop();}catch(e){} }
   trRec = new SR();
-  // 不指定lang，让浏览器自动识别中文和泰语
-  trRec.lang = 'zh-CN';
+  // Set recognition language based on translation mode
+  trRec.lang = transMode==='en-th' ? 'en-US' : 'zh-CN';
   trRec.continuous = false;
   trRec.interimResults = true;
   trRec.maxAlternatives = 1;
@@ -2011,42 +2053,55 @@ function trProcess(text) {
   // Remove empty prompt element
   var emp = document.getElementById('trEmp'); if(emp) emp.style.display='none';
 
-  // Detect source language
-  var lang = detectLang(text);
-  var isChinese = lang.indexOf('zh')===0 || lang==='en-US'; // treat English as "from Chinese side"
-  // If it contains significant Thai chars, it's Thai
+  // Detect Thai chars
   var thCount=0, totalCount=0;
   for(var i=0;i<text.length;i++){var c=text.charCodeAt(i);if(c>=0x0E00&&c<=0x0E7F){thCount++;totalCount++;}else if(c>0x20){totalCount++;}}
   var isThai = totalCount>0 && (thCount/totalCount)>0.15;
 
-  var srcLang = isThai ? 'th' : 'zh';
-  var dstLang = isThai ? 'zh' : 'th';
-  var srcLabel = isThai ? 'ภาษาไทย' : '中文';
-  var dstLabel = isThai ? '中文' : 'ภาษาไทย';
+  var srcLang, dstLang, srcLabel, dstLabel, sysPrompt, userPrompt;
+
+  if (transMode==='en-th') {
+    // English ↔ Thai mode
+    srcLang = isThai ? 'th' : 'en';
+    dstLang = isThai ? 'en' : 'th';
+    srcLabel = isThai ? 'ภาษาไทย' : 'English';
+    dstLabel = isThai ? 'English' : 'ภาษาไทย';
+    if (isThai) {
+      sysPrompt = 'You are a professional Thai-English translator. The user inputs Thai. Output only the English translation. No explanations, no extra text.';
+      userPrompt = text;
+    } else {
+      sysPrompt = 'คุณเป็นนักแปลอังกฤษ-ไทยมืออาชีพ ผู้ใช้ป้อนภาษาอังกฤษ คุณแปลเป็นภาษาไทยเท่านั้น ห้ามอธิบาย ห้ามเพิ่มข้อความอื่น\nYou are a professional English-Thai translator. The user inputs English. Output only the Thai translation. No explanations, no extra text.';
+      userPrompt = text;
+    }
+  } else {
+    // Chinese ↔ Thai mode (default)
+    srcLang = isThai ? 'th' : 'zh';
+    dstLang = isThai ? 'zh' : 'th';
+    srcLabel = isThai ? 'ภาษาไทย' : '中文';
+    dstLabel = isThai ? '中文' : 'ภาษาไทย';
+    if (isThai) {
+      sysPrompt = '你是专业中泰翻译。用户输入泰语，你只输出对应的中文翻译，不要解释，不要加任何其他文字。';
+      userPrompt = text;
+    } else {
+      sysPrompt = 'คุณเป็นนักแปลไทย-จีนมืออาชีพ ผู้ใช้ป้อนภาษาจีน คุณแปลเป็นภาษาไทยเท่านั้น ห้ามอธิบาย ห้ามเพิ่มข้อความอื่น\n你是专业中泰翻译。用户输入中文，你只输出对应的泰语翻译，不要解释，不要加任何其他文字。';
+      userPrompt = text;
+    }
+  }
 
   // Show source text immediately
   var container = document.getElementById('trMsgs');
   var pair = document.createElement('div'); pair.className='tr-pair';
+  var translatingLabel = transMode==='en-th' ? 'Translating…' : '翻译中…';
   pair.innerHTML = '<div class="tr-lbl '+srcLang+'">'+srcLabel
     +'<button class="tr-spk" onclick="tts(this.getAttribute(\'data-t\'))" data-t="'+escA(text)+'">'
     +'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'
     +'<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>'
     +'</div>'
     +'<div class="tr-src '+srcLang+'">'+esc(text)+'</div>'
-    +'<div class="tr-lbl '+dstLang+'" style="margin-top:8px">'+dstLabel+' · 翻译中…</div>'
+    +'<div class="tr-lbl '+dstLang+'" style="margin-top:8px">'+dstLabel+' · '+translatingLabel+'</div>'
     +'<div class="tr-dst '+dstLang+'" id="trDstCur" style="opacity:.5">⋯</div>';
   container.appendChild(pair);
   scrollC(container);
-
-  // Call AI for translation
-  var sysPrompt, userPrompt;
-  if (isThai) {
-    sysPrompt = '你是专业中泰翻译。用户输入泰语，你只输出对应的中文翻译，不要解释，不要加任何其他文字。';
-    userPrompt = text;
-  } else {
-    sysPrompt = 'คุณเป็นนักแปลไทย-จีนมืออาชีพ ผู้ใช้ป้อนภาษาจีน คุณแปลเป็นภาษาไทยเท่านั้น ห้ามอธิบาย ห้ามเพิ่มข้อความอื่น\n你是专业中泰翻译。用户输入中文，你只输出对应的泰语翻译，不要解释，不要加任何其他文字。';
-    userPrompt = text;
-  }
 
   callM(selTrans, [{role:'user',content:userPrompt}], sysPrompt)
     .then(function(reply) {
@@ -2081,7 +2136,7 @@ function trSpeak(text, lang) {
   if (!window.speechSynthesis) { setTrSt('idle'); return; }
   window.speechSynthesis.cancel();
   setTrSt('speaking');
-  var ttsLang = lang==='th' ? 'th-TH' : 'zh-CN';
+  var ttsLang = lang==='th' ? 'th-TH' : lang==='en' ? 'en-US' : 'zh-CN';
   function doSpeak() {
     var utt = new SpeechSynthesisUtterance(text);
     utt.lang = ttsLang; utt.rate = 0.9; utt.pitch = 1.0;
