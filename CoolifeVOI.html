@@ -957,7 +957,13 @@ var trCount = 0;
 var transMode = 'zh-th';       // 'zh-th' | 'en-th'
 var trAutoLoop = false;        // auto-restart mic after each translation
 var trAutoSend = false;        // continuous recognition: auto-send each complete sentence
-var whisperCfg = {key:'', url:'https://poloai.top/v1', model:'whisper-1'};
+// ── Whisper 内置配置 ──
+// BASE-URL=https://polocn.580ai.net/v1  model=whisper
+// Key 不显示、不入 localStorage。把真实 Key 替换下面这串即可真正内置；
+// 留空时用户可在设置里临时填（网页关掉即忘），未填 Key 语音会自动退回浏览器识别。
+// 注意：仓库是公开的，写死在这里的 Key 会公开可见。
+var WHKEY = ''; // ← 替换成你的真实 Whisper Key（如有）
+var whisperCfg = {key:'', url:'https://polocn.580ai.net/v1', model:'whisper'};
 
 // ════ INIT ════
 loadCfg();
@@ -1562,7 +1568,7 @@ function vcAddLine(role, text) {
   else{aiName=MI[sel1v1]?MI[sel1v1].name:'AI';}
   var lbl=role==='ai'?aiName:'你';
   d.innerHTML='<div class="vcll">'+lbl+'</div><div class="vclt">'+esc(text)+'</div>';
-  tr.appendChild(d); tr.scrollTop=tr.scrollHeight; return d;
+  tr.appendChild(d); scrollC(tr); return d;
 }
 
 // ════ DISCUSSION ════
@@ -2388,6 +2394,7 @@ function trProcessContinuous(text) {
     if(!el) return;
     if(!dstStarted){ dstStarted=true; el.style.opacity='1'; el.style.color=''; el.innerHTML=''; }
     el.textContent=fullTxt;
+    scrollC(container);
   })
     .then(function(reply){
       reply=reply.trim();
@@ -2529,6 +2536,7 @@ function trProcess(text) {
     if(!el) return;
     if(!dstStarted){ dstStarted=true; el.style.opacity='1'; el.style.color=''; el.innerHTML=''; }
     el.textContent=fullTxt;
+    scrollC(container);
   })
     .then(function(reply) {
       reply = reply.trim();
@@ -2668,10 +2676,10 @@ function buildCfgModal(){
       +'</div></div>';
   });
   // Whisper config
-  html+='<div class="mdsec" style="border-top:1px solid var(--bd);padding-top:14px;margin-top:8px"><div class="mdst" style="color:var(--dg)">🎧 Whisper 语音识别（中泰互译可选）</div><div class="fg">'
-    +'<div class="fl">API Key</div><input class="mi" type="password" id="ci-wh-k" placeholder="sk-..." value="'+escA(whisperCfg.key)+'">'
-    +'<div class="fl">API 地址</div><input class="mi" type="text" id="ci-wh-u" value="'+escA(whisperCfg.url)+'">'
-    +'<div class="fl">模型名称</div><input class="mi" type="text" id="ci-wh-m" value="'+escA(whisperCfg.model)+'">'
+  html+='<div class="mdsec" style="border-top:1px solid var(--bd);padding-top:14px;margin-top:8px"><div class="mdst" style="color:var(--dg)">🎧 Whisper 语音识别（中泰互译可选）</div>'
+    +'<div class="fg"><div class="fl">API Key（留空默认使用内置）</div><input class="mi" type="password" id="ci-wh-k" placeholder="内置 · 留空即可" autocomplete="off"></div>'
+    +'<div class="fg"><div class="fl">API 地址</div><input class="mi" type="text" id="ci-wh-u" value="'+escA(whisperCfg.url)+'"></div>'
+    +'<div class="fg"><div class="fl">模型名称</div><input class="mi" type="text" id="ci-wh-m" value="'+escA(whisperCfg.model)+'"></div>'
     +'</div></div>';
   document.getElementById('cfgBody').innerHTML=html;
 }
@@ -2684,18 +2692,25 @@ function saveCfg(){
     cfg[k].model=(document.getElementById('ci-'+k+'-m')||{}).value||'';
     cfg[k].key=cfg[k].key.trim(); cfg[k].url=cfg[k].url.trim(); cfg[k].model=cfg[k].model.trim();
   });
-  // Whisper
-  whisperCfg.key  =((document.getElementById('ci-wh-k')||{}).value||'').trim();
+  // Whisper: hidden preset key (never shown in UI / localStorage)
+  var whKey = ((document.getElementById('ci-wh-k')||{}).value||'').trim();
+  whisperCfg.key = whKey ? whKey : WHKEY;
   whisperCfg.url  =((document.getElementById('ci-wh-u')||{}).value||'').trim();
   whisperCfg.model=((document.getElementById('ci-wh-m')||{}).value||'').trim();
   saveCfgLS(); closeCfg(); toast('✓ 配置已保存','ok');
 }
-function loadCfg(){try{var s=localStorage.getItem('cvo2_cfg');if(s){var p=JSON.parse(s);MODELS.forEach(function(k){if(p[k])Object.assign(cfg[k],p[k]);});if(p._whisper)Object.assign(whisperCfg,p._whisper);}}catch(e){}}
-function saveCfgLS(){try{var d=JSON.parse(JSON.stringify(cfg));d._whisper=whisperCfg;localStorage.setItem('cvo2_cfg',JSON.stringify(d));}catch(e){}}
+function loadCfg(){try{var s=localStorage.getItem('cvo2_cfg');if(s){var p=JSON.parse(s);MODELS.forEach(function(k){if(p[k])Object.assign(cfg[k],p[k]);});if(p._whisper)Object.assign(whisperCfg,Object.assign({},p._whisper,{key:''}));whisperCfg.key=whisperCfg.key||'';}}catch(e){}}
+function saveCfgLS(){try{var d={};MODELS.forEach(function(k){d[k]=Object.assign({},cfg[k],{key:''});});d._whisper=Object.assign({},whisperCfg,{key:''});localStorage.setItem('cvo2_cfg',JSON.stringify(d));}catch(e){}}
 
 // ════ UTILS ════
 function rmEl(id){var e=document.getElementById(id);if(e)e.remove();}
-function scrollC(c){requestAnimationFrame(function(){if(c)c.scrollTop=c.scrollHeight;});}
+function scrollC(c){
+  requestAnimationFrame(function(){
+    if(!c)return;
+    var near = c.scrollHeight - c.clientHeight - c.scrollTop;
+    if(c.scrollTop<=4 || near<=140){ c.scrollTop=c.scrollHeight; }
+  });
+}
 function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');}
 function escA(s){return String(s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;').replace(/\n/g,' ');}
