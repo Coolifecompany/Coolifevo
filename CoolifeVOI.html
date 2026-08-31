@@ -1991,11 +1991,16 @@ function mobSelModel(k){
 }
 
 // ════ TRANSLATION MODE ════
+function resetTransBase() {
+  trCount=0;
+  var box=document.getElementById('trMsgs'); if(box) box.innerHTML='<div class="tr-emp" id="trEmp"><div class="emp-i" id="trEmpIco"></div><div class="emp-t" id="trEmpTitle"></div><div class="emp-s" id="trEmpDesc"></div></div>';
+  var cnt=document.getElementById('trCnt'); if(cnt) cnt.textContent='0 条翻译';
+}
 function startTrans() {
   if (!cfg[selTrans].key) { toast(MI[selTrans].name+' 未配置 API Key','er'); return; }
   if (srMode==='whisper' && !whisperCfg.key) { toast('Whisper 未配置 API Key，已切回浏览器识别','er'); srMode='browser'; }
   transMode = 'zh-th'; trAutoLoop = false;
-  trCount=0;
+  resetTransBase();
   showSc('trans');
   document.getElementById('hbadge').textContent='中泰互译';
   document.getElementById('hbadge').className='hbadge';
@@ -2030,7 +2035,7 @@ function startTransET() {
   if (!cfg[selTrans].key) { toast(MI[selTrans].name+' 未配置 API Key','er'); return; }
   if (srMode==='whisper' && !whisperCfg.key) { toast('Whisper 未配置 API Key，已切回浏览器识别','er'); srMode='browser'; }
   transMode = 'en-th'; trAutoLoop = false;
-  trCount=0;
+  resetTransBase();
   showSc('trans');
   document.getElementById('hbadge').textContent='英泰互译';
   document.getElementById('hbadge').className='hbadge';
@@ -2043,8 +2048,10 @@ function startTransET() {
   document.getElementById('trDirSrc').textContent='EN';
   document.getElementById('trDirDst').textContent='ไทย';
   document.getElementById('trInput').placeholder='输入英文或泰语… / Type English or Thai…';
-  document.getElementById('trMsgs').innerHTML='<div class="tr-emp" id="trEmp"><div class="emp-i" id="trEmpIco">🇬🇧</div><div class="emp-t" id="trEmpTitle">英泰实时互译</div><div class="emp-s" id="trEmpDesc" style="font-family:IBM Plex Mono,monospace">Type text or tap mic to speak<br>English → Thai · Thai → English</div></div>';
-  document.getElementById('trCnt').textContent='0 条翻译';
+  document.getElementById('trEmpIco').textContent='🇬🇧';
+  document.getElementById('trEmpTitle').textContent='英泰实时互译';
+  document.getElementById('trEmpDesc').innerHTML='Type text or tap mic to speak<br>English → Thai · Thai → English';
+  document.getElementById('trEmpDesc').style.fontFamily='IBM Plex Mono,monospace';
   // Split header labels
   document.getElementById('trSplitIcoL').textContent='🇬🇧';
   document.getElementById('trSplitLblL').textContent='English';
@@ -2110,11 +2117,8 @@ function toggleTrAutoSend() {
 
 function clearTrans() {
   trCount=0;
-  if (transMode==='en-th') {
-    document.getElementById('trMsgs').innerHTML='<div class="tr-emp" id="trEmp"><div class="emp-i" id="trEmpIco">🇬🇧</div><div class="emp-t" id="trEmpTitle">英泰实时互译</div><div class="emp-s" id="trEmpDesc" style="font-family:IBM Plex Mono,monospace">Type text or tap mic to speak<br>English → Thai · Thai → English</div></div>';
-  } else {
-    document.getElementById('trMsgs').innerHTML='<div class="tr-emp" id="trEmp"><div class="emp-i" id="trEmpIco">🇹🇭</div><div class="emp-t" id="trEmpTitle">中泰实时互译</div><div class="emp-s" id="trEmpDesc" style="font-family:IBM Plex Mono,monospace">输入文字或按麦克风说话<br>中文 → 泰语 · 泰语 → 中文</div></div>';
-  }
+  var zh = transMode!=='en-th';
+  document.getElementById('trMsgs').innerHTML='<div class="tr-emp" id="trEmp"><div class="emp-i" id="trEmpIco">'+(zh?'🇹🇭':'🇬🇧')+'</div><div class="emp-t" id="trEmpTitle">'+(zh?'中泰实时互译':'英泰实时互译')+'</div><div class="emp-s" id="trEmpDesc" style="font-family:IBM Plex Mono,monospace">'+(zh?'输入文字或按麦克风说话<br>中文 → 泰语 · 泰语 → 中文':'Type text or tap mic to speak<br>English → Thai · Thai → English')+'</div></div>';
   document.getElementById('trCnt').textContent='0 条翻译';
   toast('已清空','ok');
 }
