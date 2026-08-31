@@ -47,6 +47,12 @@ header{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:
 .sidebar{width:256px;flex-shrink:0;display:flex;flex-direction:column;border-right:1px solid var(--bd);background:var(--sf);overflow-y:auto;padding:14px}
 .sidebar::-webkit-scrollbar{width:4px}
 .sidebar::-webkit-scrollbar-thumb{background:var(--bd);border-radius:2px}
+/* sidebar collapse toggle */
+.sbt{position:sticky;top:0;z-index:2;align-self:flex-end;flex-shrink:0;width:26px;height:26px;margin:-2px -2px 10px 0;border:1px solid var(--bd);border-radius:7px;background:var(--sf2);color:var(--txd);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s}
+.sbt:hover{color:var(--acb);border-color:var(--acb)}
+.sidebar.collapsed{width:0;padding:0;border-right-width:0;overflow:hidden}
+.sbopen{position:fixed;left:0;top:var(--hh);z-index:80;width:28px;height:30px;margin-top:12px;display:none;align-items:center;justify-content:center;border:1px solid var(--bd);border-left:none;border-radius:0 9px 9px 0;background:var(--sf);color:var(--txd);cursor:pointer;transition:all .2s}
+.sbopen:hover{color:var(--acb);border-color:var(--acb)}
 .sec{margin-bottom:18px}
 .sl{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--txm);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
 .cfgl{background:none;border:none;color:var(--acb);font-family:'IBM Plex Mono',monospace;font-size:10px;cursor:pointer;padding:0}
@@ -287,22 +293,114 @@ header{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:
 .trmsgs::-webkit-scrollbar{width:5px}
 .trmsgs::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px}
 .tr-emp{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:10px;opacity:.4;user-select:none;text-align:center}
-.tr-pair{animation:fu .4s ease}
+
+/* tr-pair: portrait default — left/right stack vertically */
+.tr-pair{animation:fu .4s ease;display:flex;flex-direction:column;gap:0}
+.tr-left,.tr-right{display:flex;flex-direction:column}
+.tr-right{margin-top:8px}
+
 .tr-src{padding:10px 14px;border-radius:12px 12px 4px 12px;font-size:14px;line-height:1.7;max-width:85%;align-self:flex-end;white-space:pre-wrap;word-break:break-word}
 .tr-src.zh{background:linear-gradient(135deg,var(--ac),#8b7bf0);color:white;box-shadow:0 4px 15px rgba(108,92,231,.3)}
 .tr-src.th{background:linear-gradient(135deg,var(--dg),#e05070);color:white;box-shadow:0 4px 15px rgba(255,107,138,.3)}
-.tr-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.06em;font-weight:600;margin-top:6px}
-.tr-lbl.zh{color:var(--acb);text-align:right}
+.tr-src.en{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:white;box-shadow:0 4px 15px rgba(14,165,233,.3)}
+.tr-lbl{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.06em;font-weight:600;margin-top:6px;display:flex;align-items:center;gap:6px}
+.tr-lbl.zh{color:var(--acb);justify-content:flex-end}
 .tr-lbl.th{color:var(--dg)}
+.tr-lbl.en{color:#38bdf8;justify-content:flex-end}
 .tr-dst{padding:12px 15px;border-radius:4px 12px 12px 12px;font-size:15px;line-height:1.8;max-width:85%;align-self:flex-start;white-space:pre-wrap;word-break:break-word;border:1px solid transparent}
 .tr-dst.th{background:rgba(255,107,138,.1);border-color:rgba(255,107,138,.2);color:var(--tx)}
 .tr-dst.zh{background:rgba(108,92,231,.1);border-color:rgba(108,92,231,.2);color:var(--tx)}
-.tr-spk{background:none;border:none;cursor:pointer;padding:3px;border-radius:4px;opacity:.5;transition:opacity .2s;display:inline-flex;align-items:center;vertical-align:middle;margin-left:6px}
+.tr-dst.en{background:rgba(14,165,233,.1);border-color:rgba(14,165,233,.2);color:var(--tx)}
+.tr-spk{background:none;border:none;cursor:pointer;padding:3px;border-radius:4px;opacity:.5;transition:opacity .2s;display:inline-flex;align-items:center;vertical-align:middle;margin-left:4px}
 .tr-spk:hover{opacity:1}
 .tr-dir{display:flex;align-items:center;gap:8px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--txd)}
 .tr-dir-arrow{color:var(--dg);font-size:16px;animation:arrowPulse 2s infinite}
 @keyframes arrowPulse{0%,100%{opacity:.5}50%{opacity:1}}
 .amc.sel.dg{border-color:var(--dg);background:rgba(255,107,138,.08)}
+
+/* Split column header: hidden in portrait, shown in landscape */
+.tr-split-header{display:none;flex-shrink:0;border-bottom:2px solid var(--bd);background:rgba(0,0,0,.25)}
+.tr-loop-btn{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:8px;border:1px solid var(--bd);background:var(--sf);color:var(--txd);font-family:'IBM Plex Mono',monospace;font-size:11px;cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0}
+.tr-loop-btn:hover{border-color:var(--bd2);color:var(--tx)}
+.tr-loop-btn.on{border-color:var(--tl);color:var(--tl);background:rgba(0,212,170,.1);animation:loopPulse 2s infinite}
+@keyframes loopPulse{0%,100%{box-shadow:0 0 0 0 rgba(0,212,170,0)}50%{box-shadow:0 0 0 5px rgba(0,212,170,.12)}}
+
+/* ═══ LANDSCAPE / WIDE-SCREEN SPLIT VIEW ═══ */
+@media (orientation:landscape) and (min-width:700px){
+  /* Show the split column header */
+  .tr-split-header{display:grid!important;grid-template-columns:1fr 1fr}
+  /* trmsgs becomes a split container */
+  #transSc .trmsgs{
+    padding:0;
+    gap:0;
+    display:flex;
+    flex-direction:column;
+  }
+  /* Each pair is a 50/50 row */
+  .tr-pair{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0;
+    border-bottom:1px solid var(--bd);
+    animation:fu .35s ease;
+    min-height:0;
+  }
+  .tr-left{
+    padding:20px 28px 22px;
+    border-right:1px solid var(--bd);
+    justify-content:center;
+    gap:10px;
+  }
+  .tr-right{
+    padding:20px 28px 22px;
+    justify-content:center;
+    gap:10px;
+    margin-top:0;
+  }
+  /* Bigger fonts for large display */
+  .tr-src{
+    font-size:26px!important;
+    line-height:1.55!important;
+    max-width:100%!important;
+    padding:14px 18px!important;
+    border-radius:14px 14px 5px 14px!important;
+    align-self:stretch!important;
+  }
+  .tr-dst{
+    font-size:26px!important;
+    line-height:1.55!important;
+    max-width:100%!important;
+    padding:14px 18px!important;
+    border-radius:5px 14px 14px 14px!important;
+    align-self:stretch!important;
+  }
+  .tr-lbl{
+    font-size:12px!important;
+    letter-spacing:.1em!important;
+    margin-top:0!important;
+    justify-content:flex-start!important;
+  }
+  .tr-lbl.zh,.tr-lbl.en{justify-content:flex-start!important}
+  /* Split column header */
+  .tr-split-col{
+    padding:10px 28px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .tr-split-col:first-child{border-right:1px solid var(--bd)}
+  /* Larger input */
+  #transSc .ia textarea{font-size:16px}
+  /* Bigger empty state */
+  #transSc .tr-emp .emp-i{font-size:52px}
+  #transSc .tr-emp .emp-t{font-size:20px}
+  #transSc .tr-emp .emp-s{font-size:14px}
+}
 
 /* VOICE OVERLAY */
 .vco{position:fixed;inset:0;z-index:300;background:var(--bg-g);display:none;flex-direction:column;overflow:hidden}
@@ -406,6 +504,7 @@ header{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:
 /* RESPONSIVE */
 @media(max-width:768px){
   .sidebar{display:none}
+  .sbopen{display:none!important}
   .bnav{display:flex}
   .layout{margin-bottom:62px}
   .dms,.msgs,.trmsgs{padding:13px;gap:12px}
@@ -462,6 +561,9 @@ header{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:
 <div class="layout">
   <!-- SIDEBAR -->
   <aside class="sidebar" id="sidebar">
+    <button class="sbt" id="sbTgl" onclick="toggleSidebar(0)" title="收起侧栏(模型选择)" aria-label="收起侧栏">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
     <div class="sec" id="sideMdSec">
       <div class="sl"><span id="sideMdLabel">选择 AI</span><span id="sideSel" style="color:var(--acb);font-size:10px"></span></div>
       <div id="sideMdList"></div>
@@ -481,6 +583,9 @@ header{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:
       <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--txm);line-height:1.6">输入各模型的<br>API Key · 地址 · 模型名</div>
     </div>
   </aside>
+  <div class="sbopen" id="sbOpen" onclick="toggleSidebar(1)" title="展开侧栏" aria-label="展开侧栏" style="display:none">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+  </div>
 
   <div class="main">
     <!-- SETUP -->
@@ -657,8 +762,23 @@ header{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:
         <div class="tr-dir">
           <span id="trDirSrc">中</span><span class="tr-dir-arrow">⇄</span><span id="trDirDst">ไทย</span>
         </div>
+        <button class="tr-loop-btn" id="trLoopBtn" onclick="toggleTrLoop()" title="说完自动翻译并继续监听">
+          🔄 <span id="trLoopLbl">连续</span>
+        </button>
+        <button class="tr-loop-btn" id="trAutoSendBtn" onclick="toggleTrAutoSend()" title="持续监听，说完整句自动翻译">
+          ⚡ <span id="trAutoSendLbl">自动</span>
+        </button>
         <button class="pab" onclick="clearTrans()">清空</button>
         <button class="pab back" onclick="backSetup()">← 返回</button>
+      </div>
+      <!-- Split column headers (visible only in landscape via CSS) -->
+      <div class="tr-split-header" id="trSplitHeader">
+        <div class="tr-split-col" id="trSplitColL" style="color:var(--acb)">
+          <span id="trSplitIcoL">🇨🇳</span><span id="trSplitLblL">中文</span>
+        </div>
+        <div class="tr-split-col" id="trSplitColR" style="color:var(--dg)">
+          <span id="trSplitIcoR">🇹🇭</span><span id="trSplitLblR">ภาษาไทย</span>
+        </div>
       </div>
       <div class="trmsgs" id="trMsgs">
         <div class="tr-emp" id="trEmp">
@@ -835,6 +955,8 @@ var trMediaRec = null;         // MediaRecorder for Whisper
 var trAudioChunks = [];
 var trCount = 0;
 var transMode = 'zh-th';       // 'zh-th' | 'en-th'
+var trAutoLoop = false;        // auto-restart mic after each translation
+var trAutoSend = false;        // continuous recognition: auto-send each complete sentence
 var whisperCfg = {key:'', url:'https://poloai.top/v1', model:'whisper-1'};
 
 // ════ INIT ════
@@ -902,6 +1024,7 @@ function toggleMulti(k) {
 }
 
 function buildSidebar() {
+  if (document.getElementById('sidebar').classList.contains('collapsed')) return; // collapsed: don't touch DOM
   var list = document.getElementById('sideMdList');
   list.innerHTML = '';
   MODELS.forEach(function(k) {
@@ -922,6 +1045,16 @@ function buildSidebar() {
   document.getElementById('sideMdLabel').textContent = appMode==='1v1' ? '选择 AI 伙伴' : '参与 AI';
   var cnt = Object.keys(selMulti).filter(function(x){return selMulti[x];}).length;
   document.getElementById('sideSel').textContent = appMode==='multi' ? cnt+'个已选' : '';
+}
+
+function toggleSidebar(force) {
+  var sb = document.getElementById('sidebar');
+  if (force===0) sb.classList.add('collapsed');
+  else if (force===1) sb.classList.remove('collapsed');
+  else sb.classList.toggle('collapsed');
+  var collapsed = sb.classList.contains('collapsed');
+  document.getElementById('sbOpen').style.display = collapsed ? 'flex' : 'none';
+  document.getElementById('sbTgl').style.display = collapsed ? 'none' : 'flex';
 }
 
 function selAppMode(m) {
@@ -1758,7 +1891,7 @@ function backSetup(){
   // cleanup translation
   if(trRec){try{trRec.stop();}catch(e){}trRec=null;}
   if(trMediaRec&&trMediaRec.state==='recording'){try{trMediaRec.stop();}catch(e){}}
-  trSt='idle';
+  trSt='idle'; trAutoLoop=false; trAutoSend=false;
   showSc('setup'); buildSidebar();
   // reset hbadge style
   var hb=document.getElementById('hbadge');
@@ -1855,7 +1988,7 @@ function mobSelModel(k){
 function startTrans() {
   if (!cfg[selTrans].key) { toast(MI[selTrans].name+' 未配置 API Key','er'); return; }
   if (srMode==='whisper' && !whisperCfg.key) { toast('Whisper 未配置 API Key，已切回浏览器识别','er'); srMode='browser'; }
-  transMode = 'zh-th';
+  transMode = 'zh-th'; trAutoLoop = false;
   trCount=0;
   showSc('trans');
   document.getElementById('hbadge').textContent='中泰互译';
@@ -1872,13 +2005,25 @@ function startTrans() {
   document.getElementById('trEmpIco').textContent='🇹🇭';
   document.getElementById('trEmpTitle').textContent='中泰实时互译';
   document.getElementById('trEmpDesc').innerHTML='输入文字或按麦克风说话<br>中文 → 泰语 · 泰语 → 中文';
+  // Split header labels
+  document.getElementById('trSplitIcoL').textContent='🇨🇳';
+  document.getElementById('trSplitLblL').textContent='中文';
+  document.getElementById('trSplitColL').style.color='var(--acb)';
+  document.getElementById('trSplitIcoR').textContent='🇹🇭';
+  document.getElementById('trSplitLblR').textContent='ภาษาไทย';
+  document.getElementById('trSplitColR').style.color='var(--dg)';
+  // Reset loop button
+  document.getElementById('trLoopBtn').classList.remove('on');
+  document.getElementById('trLoopLbl').textContent='连续';
+  document.getElementById('trAutoSendBtn').classList.remove('on');
+  document.getElementById('trAutoSendLbl').textContent='自动';
   trSt='idle';
 }
 
 function startTransET() {
   if (!cfg[selTrans].key) { toast(MI[selTrans].name+' 未配置 API Key','er'); return; }
   if (srMode==='whisper' && !whisperCfg.key) { toast('Whisper 未配置 API Key，已切回浏览器识别','er'); srMode='browser'; }
-  transMode = 'en-th';
+  transMode = 'en-th'; trAutoLoop = false;
   trCount=0;
   showSc('trans');
   document.getElementById('hbadge').textContent='英泰互译';
@@ -1894,7 +2039,67 @@ function startTransET() {
   document.getElementById('trInput').placeholder='输入英文或泰语… / Type English or Thai…';
   document.getElementById('trMsgs').innerHTML='<div class="tr-emp" id="trEmp"><div class="emp-i" id="trEmpIco">🇬🇧</div><div class="emp-t" id="trEmpTitle">英泰实时互译</div><div class="emp-s" id="trEmpDesc" style="font-family:IBM Plex Mono,monospace">Type text or tap mic to speak<br>English → Thai · Thai → English</div></div>';
   document.getElementById('trCnt').textContent='0 条翻译';
+  // Split header labels
+  document.getElementById('trSplitIcoL').textContent='🇬🇧';
+  document.getElementById('trSplitLblL').textContent='English';
+  document.getElementById('trSplitColL').style.color='#38bdf8';
+  document.getElementById('trSplitIcoR').textContent='🇹🇭';
+  document.getElementById('trSplitLblR').textContent='ภาษาไทย';
+  document.getElementById('trSplitColR').style.color='var(--dg)';
+  // Reset loop button
+  document.getElementById('trLoopBtn').classList.remove('on');
+  document.getElementById('trLoopLbl').textContent='连续';
+  document.getElementById('trAutoSendBtn').classList.remove('on');
+  document.getElementById('trAutoSendLbl').textContent='自动';
   trSt='idle';
+}
+
+function toggleTrLoop() {
+  trAutoLoop = !trAutoLoop;
+  var btn = document.getElementById('trLoopBtn');
+  var lbl = document.getElementById('trLoopLbl');
+  if (trAutoLoop) {
+    btn.classList.add('on');
+    lbl.textContent = '连续 ON';
+    toast('🔄 连续模式已开启，说完自动翻译并继续监听','ok');
+    // Start listening right away if idle
+    if (trSt==='idle') { setTimeout(function(){ if(trSt==='idle') toggleTrMic(); }, 300); }
+  } else {
+    btn.classList.remove('on');
+    lbl.textContent = '连续';
+    toast('连续模式已关闭','ok');
+  }
+}
+
+function toggleTrAutoSend() {
+  // Auto-send mode is exclusive with auto-loop
+  if (!trAutoSend && trAutoLoop) {
+    trAutoLoop = false;
+    document.getElementById('trLoopBtn').classList.remove('on');
+    document.getElementById('trLoopLbl').textContent = '连续';
+  }
+  trAutoSend = !trAutoSend;
+  var btn = document.getElementById('trAutoSendBtn');
+  var lbl = document.getElementById('trAutoSendLbl');
+  if (trAutoSend) {
+    btn.classList.add('on');
+    lbl.textContent = '自动 ON';
+    toast('⚡ 自动发送已开启，持续聆听，说完整句立即翻译','ok');
+    // Stop any current recording and start continuous mode
+    if (trSt==='recording') {
+      if (trRec) { try{trRec.stop();}catch(e){} trRec=null; }
+    }
+    if (trSt==='idle') { setTimeout(function(){ if(trAutoSend && trSt==='idle') trListenContinuous(); }, 300); }
+  } else {
+    btn.classList.remove('on');
+    lbl.textContent = '自动';
+    // Stop continuous recognition
+    if (trRec) { try{ trRec.stop(); }catch(e){} trRec=null; }
+    setTrSt('idle');
+    document.getElementById('trInput').value = '';
+    document.getElementById('trInput').style.height = '';
+    toast('自动发送已关闭','ok');
+  }
 }
 
 function clearTrans() {
@@ -1915,11 +2120,11 @@ function setTrSt(st) {
   var sendBtn = document.getElementById('trSendBtn');
   if(mic) mic.classList.remove('rec');
   if (st==='idle') {
-    if(hi) hi.textContent='Enter 翻译 · Shift+Enter 换行 · 🎙 语音输入';
+    if(hi) hi.textContent = trAutoSend ? '⚡ 自动模式已停止 · 点击麦克风重新开启' : 'Enter 翻译 · Shift+Enter 换行 · 🎙 语音输入';
     if(sendBtn) sendBtn.disabled=false;
   } else if (st==='recording') {
     if(mic) mic.classList.add('rec');
-    if(hi) hi.textContent='🎙 正在聆听… 再次点击结束';
+    if(hi) hi.textContent = trAutoSend ? '⚡ 自动模式 · 说完整句立即翻译… 点击麦克风停止' : '🎙 正在聆听… 再次点击结束';
   } else if (st==='processing') {
     if(hi) hi.textContent='AI 翻译中…';
     if(sendBtn) sendBtn.disabled=true;
@@ -1946,6 +2151,10 @@ function sendTrans() {
 // ── Mic button on input bar ──
 function toggleTrMic() {
   if (trSt==='processing') return;
+  // If auto-send mode is active, mic button toggles it off
+  if (trAutoSend) {
+    toggleTrAutoSend(); return;
+  }
   if (trSt==='speaking') {
     if (window.speechSynthesis) window.speechSynthesis.cancel();
     setTrSt('idle'); return;
@@ -1995,6 +2204,203 @@ function trListenBrowser() {
     trProcess(text);
   };
   try { trRec.start(); } catch(err) { toast('启动失败: '+err.message,'er'); }
+}
+
+// ── Continuous auto-send recognition ──
+// Keeps mic open, detects sentence endings and sends each sentence immediately.
+function trListenContinuous() {
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { toast('请使用 Chrome/Edge','er'); trAutoSend=false; return; }
+  if (trRec) { try{trRec.stop();}catch(e){} }
+
+  // Sentence-ending punctuation
+  var sentEnd = /[。！？.!?\n]+$/;
+  // Sentence splitter: split on these punctuation marks (keep delimiter)
+  function splitSentences(text) {
+    // Split after 。！？.!?
+    var parts = text.split(/(?<=[。！？!?])/);
+    return parts.map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
+  }
+
+  var accumulated = '';  // finalized text not yet sent
+  var inp = document.getElementById('trInput');
+
+  trRec = new SR();
+  trRec.lang = transMode==='en-th' ? 'en-US' : 'zh-CN';
+  trRec.continuous = true;
+  trRec.interimResults = true;
+  trRec.maxAlternatives = 1;
+
+  trRec.onstart = function() {
+    setTrSt('recording');
+    document.getElementById('trHint').textContent = '⚡ 自动模式 · 说完整句立即翻译…';
+    if(inp){ inp.value=''; trResize(inp); }
+  };
+
+  trRec.onresult = function(e) {
+    var interim = '';
+    var justFinalized = '';
+    for (var i = e.resultIndex; i < e.results.length; i++) {
+      var t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) {
+        justFinalized += t;
+        accumulated += t;
+      } else {
+        interim += t;
+      }
+    }
+
+    // Show interim + accumulated in input box for feedback
+    if (inp) {
+      inp.value = accumulated + interim;
+      trResize(inp);
+    }
+
+    // Try to extract complete sentences from accumulated
+    if (accumulated.length > 0) {
+      var sentences = splitSentences(accumulated);
+      var toSend = [];
+      var remaining = accumulated;
+
+      // Check if any sentence ends with punctuation
+      for (var j = 0; j < sentences.length; j++) {
+        var s = sentences[j];
+        if (sentEnd.test(s) && s.replace(/[。！？.!?\s]/g,'').length > 0) {
+          toSend.push(s);
+          remaining = remaining.slice(remaining.indexOf(s) + s.length).trimLeft();
+        }
+      }
+
+      if (toSend.length > 0) {
+        accumulated = remaining;
+        if (inp) { inp.value = accumulated + interim; trResize(inp); }
+        // Send each complete sentence
+        toSend.forEach(function(sent) {
+          if (sent.replace(/[。！？.!?\s]/g,'').length > 0) {
+            // Brief visual flash
+            if(inp){ inp.value = sent; trResize(inp); }
+            setTimeout(function(s){ return function(){
+              trProcessContinuous(s);
+            }; }(sent), 0);
+          }
+        });
+      }
+    }
+  };
+
+  trRec.onerror = function(e) {
+    if (e.error === 'no-speech') {
+      // No speech: if still in auto-send mode, restart
+      if (trAutoSend) {
+        trRec = null;
+        setTimeout(function(){ if(trAutoSend) trListenContinuous(); }, 500);
+      }
+      return;
+    }
+    var m = {'not-allowed':'麦克风权限被拒绝','network':'网络错误','audio-capture':'未找到麦克风'};
+    toast(m[e.error]||'语音错误: '+e.error,'er');
+    trRec=null; trAutoSend=false;
+    document.getElementById('trAutoSendBtn').classList.remove('on');
+    document.getElementById('trAutoSendLbl').textContent='自动';
+    setTrSt('idle');
+  };
+
+  trRec.onend = function() {
+    // If auto-send still on and not deliberately stopped, restart
+    if (trAutoSend) {
+      trRec = null;
+      // Send any remaining accumulated text
+      var leftover = accumulated.trim();
+      if (leftover && leftover.replace(/[。！？.!?\s]/g,'').length > 0) {
+        accumulated = '';
+        if(inp){ inp.value=''; trResize(inp); }
+        trProcessContinuous(leftover);
+      }
+      setTimeout(function(){ if(trAutoSend) trListenContinuous(); }, 300);
+    } else {
+      // Send any remaining accumulated
+      var leftover2 = accumulated.trim();
+      accumulated = '';
+      if(inp){ inp.value=''; trResize(inp); }
+      trRec = null;
+      if (leftover2 && leftover2.replace(/[。！？.!?\s]/g,'').length > 0) {
+        trProcess(leftover2);
+      } else {
+        setTrSt('idle');
+      }
+    }
+  };
+
+  try { trRec.start(); } catch(err) {
+    toast('启动失败: '+err.message,'er');
+    trAutoSend=false;
+    document.getElementById('trAutoSendBtn').classList.remove('on');
+    document.getElementById('trAutoSendLbl').textContent='自动';
+  }
+}
+
+// Process a sentence in continuous mode (non-blocking — does not change trSt to 'processing')
+function trProcessContinuous(text) {
+  text = text.trim();
+  if (!text) return;
+  var emp = document.getElementById('trEmp'); if(emp) emp.style.display='none';
+
+  var thCount=0, totalCount=0;
+  for(var i=0;i<text.length;i++){var c=text.charCodeAt(i);if(c>=0x0E00&&c<=0x0E7F){thCount++;totalCount++;}else if(c>0x20){totalCount++;}}
+  var isThai = totalCount>0 && (thCount/totalCount)>0.15;
+
+  var srcLang, dstLang, srcLabel, dstLabel, sysPrompt;
+  if (transMode==='en-th') {
+    srcLang = isThai ? 'th' : 'en'; dstLang = isThai ? 'en' : 'th';
+    srcLabel = isThai ? 'ภาษาไทย' : 'English'; dstLabel = isThai ? 'English' : 'ภาษาไทย';
+    sysPrompt = isThai
+      ? 'You are a professional Thai-English translator. Output only the English translation. No explanations.'
+      : 'คุณเป็นนักแปลอังกฤษ-ไทยมืออาชีพ แปลเป็นภาษาไทยเท่านั้น ห้ามอธิบาย\nYou are a professional English-Thai translator. Output only the Thai translation. No explanations.';
+  } else {
+    srcLang = isThai ? 'th' : 'zh'; dstLang = isThai ? 'zh' : 'th';
+    srcLabel = isThai ? 'ภาษาไทย' : '中文'; dstLabel = isThai ? '中文' : 'ภาษาไทย';
+    sysPrompt = isThai
+      ? '你是专业中泰翻译。用户输入泰语，只输出中文翻译，不要解释。'
+      : 'คุณเป็นนักแปลไทย-จีนมืออาชีพ แปลเป็นภาษาไทยเท่านั้น ห้ามอธิบาย\n你是专业中泰翻译。用户输入中文，只输出泰语翻译，不要解释。';
+  }
+
+  var container = document.getElementById('trMsgs');
+  var pair = document.createElement('div'); pair.className='tr-pair';
+  var spkSvg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>';
+  var dstId = 'trDst-'+(++trCount);
+  pair.innerHTML =
+    '<div class="tr-left">'
+      +'<div class="tr-lbl '+srcLang+'">'+srcLabel+'<button class="tr-spk" onclick="tts(this.getAttribute(\'data-t\'))" data-t="'+escA(text)+'">'+spkSvg+'</button></div>'
+      +'<div class="tr-src '+srcLang+'">'+esc(text)+'</div>'
+    +'</div>'
+    +'<div class="tr-right">'
+      +'<div class="tr-lbl '+dstLang+'">'+dstLabel+' · 翻译中…</div>'
+      +'<div class="tr-dst '+dstLang+'" id="'+dstId+'" style="opacity:.5">⋯</div>'
+    +'</div>';
+  container.appendChild(pair);
+  scrollC(container);
+
+  var cntEl=document.getElementById('trCnt'); if(cntEl) cntEl.textContent=trCount+' 条翻译';
+
+  callM(selTrans, [{role:'user',content:text}], sysPrompt)
+    .then(function(reply){
+      reply=reply.trim();
+      var dst=document.getElementById(dstId);
+      if(dst){
+        dst.style.opacity='1';
+        dst.innerHTML=esc(reply)
+          +'<button class="tr-spk" onclick="tts(this.getAttribute(\'data-t\'))" data-t="'+escA(reply)+'">'+spkSvg+'</button>';
+        var right=pair.querySelector('.tr-right');
+        if(right){var lbl=right.querySelector('.tr-lbl');if(lbl)lbl.textContent=dstLabel;}
+      }
+      scrollC(container);
+      // Speak only if not in auto-send (to avoid overlapping audio with continuous mic)
+      if (!trAutoSend) trSpeak(reply, dstLang);
+    })
+    .catch(function(err){
+      var dst=document.getElementById(dstId);
+      if(dst){dst.style.opacity='1';dst.textContent='翻译失败: '+err.message;dst.style.color='var(--dg)';}
+    });
 }
 
 // ── Whisper API for translation ──
@@ -2092,14 +2498,22 @@ function trProcess(text) {
   var container = document.getElementById('trMsgs');
   var pair = document.createElement('div'); pair.className='tr-pair';
   var translatingLabel = transMode==='en-th' ? 'Translating…' : '翻译中…';
-  pair.innerHTML = '<div class="tr-lbl '+srcLang+'">'+srcLabel
-    +'<button class="tr-spk" onclick="tts(this.getAttribute(\'data-t\'))" data-t="'+escA(text)+'">'
-    +'<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'
-    +'<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>'
+
+  var spkSvg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'
+    +'<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>';
+
+  pair.innerHTML =
+    '<div class="tr-left">'
+      +'<div class="tr-lbl '+srcLang+'">'+srcLabel
+        +'<button class="tr-spk" onclick="tts(this.getAttribute(\'data-t\'))" data-t="'+escA(text)+'">'+spkSvg+'</button>'
+      +'</div>'
+      +'<div class="tr-src '+srcLang+'">'+esc(text)+'</div>'
     +'</div>'
-    +'<div class="tr-src '+srcLang+'">'+esc(text)+'</div>'
-    +'<div class="tr-lbl '+dstLang+'" style="margin-top:8px">'+dstLabel+' · '+translatingLabel+'</div>'
-    +'<div class="tr-dst '+dstLang+'" id="trDstCur" style="opacity:.5">⋯</div>';
+    +'<div class="tr-right">'
+      +'<div class="tr-lbl '+dstLang+'">'+dstLabel+' · '+translatingLabel+'</div>'
+      +'<div class="tr-dst '+dstLang+'" id="trDstCur" style="opacity:.5">⋯</div>'
+    +'</div>';
+
   container.appendChild(pair);
   scrollC(container);
 
@@ -2115,9 +2529,9 @@ function trProcess(text) {
           +'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'
           +'<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>';
       }
-      // Also update the label
-      var labels = pair.querySelectorAll('.tr-lbl');
-      if (labels.length>=2) labels[1].textContent = dstLabel;
+      // Update destination label (now inside tr-right)
+      var right = pair.querySelector('.tr-right');
+      if (right) { var lbl=right.querySelector('.tr-lbl'); if(lbl) lbl.textContent=dstLabel; }
       scrollC(container);
       // Update count
       trCount++;
@@ -2133,7 +2547,7 @@ function trProcess(text) {
 }
 
 function trSpeak(text, lang) {
-  if (!window.speechSynthesis) { setTrSt('idle'); return; }
+  if (!window.speechSynthesis) { setTrSt('idle'); if(trAutoLoop) setTimeout(toggleTrMic,400); return; }
   window.speechSynthesis.cancel();
   setTrSt('speaking');
   var ttsLang = lang==='th' ? 'th-TH' : lang==='en' ? 'en-US' : 'zh-CN';
@@ -2142,8 +2556,17 @@ function trSpeak(text, lang) {
     utt.lang = ttsLang; utt.rate = 0.9; utt.pitch = 1.0;
     var voice = findVoice(ttsLang);
     if (voice) utt.voice = voice;
-    utt.onend = function() { setTrSt('idle'); };
-    utt.onerror = function(e) { if(e.error!=='interrupted') setTrSt('idle'); };
+    utt.onend = function() {
+      setTrSt('idle');
+      // Auto-loop: restart mic after speaking finishes
+      if (trAutoLoop) setTimeout(function(){ if(trSt==='idle') toggleTrMic(); }, 500);
+    };
+    utt.onerror = function(e) {
+      if(e.error!=='interrupted') {
+        setTrSt('idle');
+        if (trAutoLoop) setTimeout(function(){ if(trSt==='idle') toggleTrMic(); }, 500);
+      }
+    };
     window.speechSynthesis.speak(utt);
   }
   if (window.speechSynthesis.getVoices().length>0) { doSpeak(); }
